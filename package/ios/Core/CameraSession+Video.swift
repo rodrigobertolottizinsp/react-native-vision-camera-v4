@@ -96,15 +96,18 @@ extension CameraSession {
       }
 
       VisionLogger.log(level: .info, message: "Will record to temporary file: \(tempFilePath)")
-      let tempURL = URL(string: "file://\(tempFilePath)")!
-
+//      let tempURL = URL(string: "file://\(tempFilePath)")!
+//      let filePath = options.filePath
+//      var url = URL(string: "file://\(tempFilePath)")!
+        let url = URL(fileURLWithPath: options.filePath)
       do {
+        let maxFileSize = options.maxFileSize
         // Create RecordingSession for the temp file
-        let recordingSession = try RecordingSession(url: tempURL,
+        let recordingSession = try RecordingSession(url: url,
                                                     fileType: options.fileType,
                                                     metadataProvider: self.metadataProvider,
                                                     orientation: self.outputOrientation,
-                                                    completion: onFinish)
+                                                    completion: onFinish, maxFileSize: maxFileSize)
 
         // Init Audio + Activate Audio Session (optional)
         if enableAudio,
