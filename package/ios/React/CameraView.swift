@@ -51,6 +51,9 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
   @objc var photoQualityBalance: NSString?
   @objc var lowLightBoost = false
   @objc var outputOrientation: NSString?
+  @objc var orientation: NSString?
+  @objc var videoMode = false
+  var lastOrientation:UIInterfaceOrientation
 
   // other props
   @objc var isActive = false
@@ -104,9 +107,11 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
   // pragma MARK: Setup
 
   override public init(frame: CGRect) {
+    lastOrientation = .portrait
     super.init(frame: frame)
     cameraSession.delegate = self
     fpsSampleCollector.delegate = self
+   NotificationCenter.default.addObserver(self, selector: #selector(orientationChanged), name: UIDevice.orientationDidChangeNotification, object: nil)
     updatePreview()
   }
 
@@ -123,11 +128,56 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
       if !isMounted {
         isMounted = true
         onViewReady?(nil)
+       DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+           self.orientationChanged()
+       }
       }
     } else {
       fpsSampleCollector.stop()
     }
   }
+
+ @objc func orientationChanged() {
+   let orientation = UIDevice.current.orientation
+   var deviceOrientation: UIInterfaceOrientation = .portrait
+   switch orientation {
+   case .landscapeLeft:
+       lastOrientation = .landscapeRight
+       deviceOrientation = .landscapeRight
+       break
+   case .landscapeRight:
+       lastOrientation = .landscapeLeft
+       deviceOrientation = .landscapeLeft
+       break
+   case .portraitUpsideDown:
+       deviceOrientation = lastOrientation
+       break
+   case .faceDown:
+       deviceOrientation = lastOrientation
+       break
+   case .faceUp:
+       deviceOrientation = lastOrientation
+       break
+   default:
+       lastOrientation = .portrait
+
+       break
+   }
+     
+   if (cameraSession.configuration?.videoMode == false) {
+       self.previewView?.videoPreviewLayer.session?.outputs.forEach { output in
+           output.connections.forEach { connection in
+               if connection.isVideoMirroringSupported {
+                   connection.automaticallyAdjustsVideoMirroring = false
+                   connection.setInterfaceOrientation(deviceOrientation)
+               }
+               self.previewView?.videoPreviewLayer.connection?.setInterfaceOrientation(deviceOrientation)
+               
+           }}
+   } else {
+//       self.previewView.videoPreviewLayer.connection?.setInterfaceOrientation(deviceOrientation)
+   }
+ }
 
   override public func layoutSubviews() {
     if let previewView {
@@ -260,6 +310,9 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
 
       // isActive
       config.isActive = isActive
+
+      config.videoMode = videoMode
+
     }
 
     // Store `zoom` offset for native pinch-gesture
