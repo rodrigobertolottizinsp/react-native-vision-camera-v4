@@ -180,16 +180,16 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     location.requestPermission()
   }, [location])
 
-  const frameProcessor = useFrameProcessor((frame) => {
-    'worklet'
+  // const frameProcessor = useFrameProcessor((frame) => {
+  //   'worklet'
 
-    runAtTargetFps(10, () => {
-      'worklet'
-      console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
-      examplePlugin(frame)
-      exampleKotlinSwiftPlugin(frame)
-    })
-  }, [])
+  //   runAtTargetFps(10, () => {
+  //     'worklet'
+  //     console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
+  //     examplePlugin(frame)
+  //     exampleKotlinSwiftPlugin(frame)
+  //   })
+  // }, [])
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
   const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr
@@ -224,7 +224,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 video={true}
                 audio={microphone.hasPermission}
                 enableLocation={location.hasPermission}
-                frameProcessor={frameProcessor}
+                // frameProcessor={frameProcessor}
                 onZoomChanged={(value) => console.log('new zoom value: ', value)}
               />
             </TapGestureHandler>

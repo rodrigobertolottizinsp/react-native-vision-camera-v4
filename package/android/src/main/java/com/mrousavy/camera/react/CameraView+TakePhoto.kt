@@ -21,7 +21,6 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
   val photo = cameraSession.takePhoto(
     Flash.fromUnionValue(flash),
     enableShutterSound,
-    orientation,
     filePath
   )
 
