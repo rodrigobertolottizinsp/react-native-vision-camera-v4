@@ -82,8 +82,6 @@ const _CaptureButton: React.FC<Props> = ({
         flash: flash,
         enableShutterSound: false,
         filePath: path,
-        targetWidth: 1080,
-        aspectRatio: 4 / 3,
       })
       onMediaCaptured(photo, 'photo', 'file://' + path)
     } catch (e) {
